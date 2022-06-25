@@ -47,5 +47,23 @@ resource "oci_core_network_security_group_security_rule" "allow_https_from_all" 
       min = var.https_lb_port
     }
   }
+}
 
+resource "oci_core_network_security_group_security_rule" "allow_6443_from_me" {
+  network_security_group_id = oci_core_network_security_group.public_lb_nsg.id
+  direction                 = "INGRESS"
+  protocol                  = 6 # tcp
+
+  description = "Allow 6443 from me"
+
+  source      = var.my_public_ip_cidr
+  source_type = "CIDR_BLOCK"
+  stateless   = false
+
+  tcp_options {
+    destination_port_range {
+      max = 6443
+      min = 6443
+    }
+  }
 }

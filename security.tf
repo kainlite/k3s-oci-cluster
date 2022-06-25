@@ -29,6 +29,18 @@ resource "oci_core_default_security_list" "default_security_list" {
   }
 
   ingress_security_rules {
+    protocol = 6 # tcp
+    source   = var.my_public_ip_cidr
+
+    description = "Allow 6443 from ${var.my_public_ip_cidr}"
+
+    tcp_options {
+      min = 6443
+      max = 6443
+    }
+  }
+
+  ingress_security_rules {
     protocol = "all"
     source   = var.oci_core_vcn_cidr
 

@@ -41,7 +41,7 @@ variable "PATH_TO_PRIVATE_KEY" {
 
 variable "os_image_id" {
   type    = string
-  default = "ocid1.image.oc1.eu-zurich-1.aaaaaaaag2uyozo7266bmg26j5ixvi42jhaujso2pddpsigtib6vfnqy5f6q" # Canonical-Ubuntu-20.04-aarch64-2022.01.18-0
+  default = "ocid1.image.oc1.iad.aaaaaaaazs64dht3rie7a3ffpabqocw2jmojpc6gssxq42r4d2352um3d3za" # Canonical-Ubuntu-20.04-aarch64-2022.01.18-0
 }
 
 variable "compute_shape" {
