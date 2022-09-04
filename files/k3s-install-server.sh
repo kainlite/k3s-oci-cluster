@@ -73,7 +73,7 @@ fi
 
 %{ if install_nginx_ingress }
 if [[ "$first_last" == "first" ]]; then
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/baremetal/deploy.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.1/deploy/static/provider/baremetal/deploy.yaml
     kubectl apply -f https://raw.githubusercontent.com/garutilorenzo/k3s-oci-cluster/master/nginx-ingress-config/all-resources.yml
 fi
 

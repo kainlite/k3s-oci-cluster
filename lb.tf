@@ -71,19 +71,20 @@ resource "oci_load_balancer_listener" "k3s_https_listener" {
   load_balancer_id         = oci_load_balancer_load_balancer.k3s_public_lb.id
   name                     = "K3s_https_listener"
   port                     = var.https_lb_port
-  protocol                 = "HTTP"
-  ssl_configuration {
-    certificate_name        = oci_load_balancer_certificate.k3s_https_certificate.certificate_name
-    cipher_suite_name       = "oci-default-ssl-cipher-suite-v1"
-    verify_peer_certificate = false
-    verify_depth            = 1
-  }
+  protocol                 = "TCP"
+
+  # ssl_configuration {
+  #   certificate_name        = oci_load_balancer_certificate.k3s_https_certificate.certificate_name
+  #   cipher_suite_name       = "oci-default-ssl-cipher-suite-v1"
+  #   verify_peer_certificate = false
+  #   verify_depth            = 1
+  # }
 }
 
 resource "oci_load_balancer_backend_set" "k3s_https_backend_set" {
   health_checker {
     protocol    = "HTTP"
-    port        = var.https_lb_port
+    port        = var.http_lb_port
     url_path    = "/healthz"
     return_code = 200
   }
