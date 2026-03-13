@@ -119,12 +119,12 @@ variable "https_lb_port" {
   default = 443
 }
 
-variable "nginx_ingress_controller_http_nodeport" {
+variable "ingress_controller_http_nodeport" {
   type    = number
   default = 30080
 }
 
-variable "nginx_ingress_controller_https_nodeport" {
+variable "ingress_controller_https_nodeport" {
   type    = number
   default = 30443
 }
@@ -136,7 +136,7 @@ variable "k3s_server_pool_size" {
 
 variable "k3s_worker_pool_size" {
   type    = number
-  default = 2
+  default = 3
 }
 
 variable "unique_tag_key" {
@@ -154,7 +154,7 @@ variable "my_public_ip_cidr" {
   description = "My public ip CIDR"
 }
 
-variable "install_nginx_ingress" {
+variable "install_traefik" {
   type    = bool
   default = true
 }
@@ -196,7 +196,7 @@ variable "argocd_release" {
 
 variable "install_argocd_image_updater" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "argocd_image_updater_release" {
@@ -211,5 +211,5 @@ variable "expose_kubeapi" {
 
 variable "paid_account" {
   type    = bool
-  default = false
+  default = true
 }

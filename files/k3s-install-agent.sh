@@ -85,12 +85,12 @@ events {
 stream {
   upstream k3s-http {
     {% for private_ip in private_ips -%}
-    server {{ private_ip }}:${nginx_ingress_controller_http_nodeport} max_fails=3 fail_timeout=10s;
+    server {{ private_ip }}:${ingress_controller_http_nodeport} max_fails=3 fail_timeout=10s;
     {% endfor -%}
   }
   upstream k3s-https {
     {% for private_ip in private_ips -%}
-    server {{ private_ip }}:${nginx_ingress_controller_https_nodeport} max_fails=3 fail_timeout=10s;
+    server {{ private_ip }}:${ingress_controller_https_nodeport} max_fails=3 fail_timeout=10s;
     {% endfor -%}
   }
 

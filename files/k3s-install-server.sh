@@ -12,54 +12,6 @@ do
 done
 }
 
-render_nginx_config(){
-cat << 'EOF' > $NGINX_RESOURCES_FILE
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ingress-nginx-controller-loadbalancer
-  namespace: ingress-nginx
-spec:
-  selector:
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-  ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 80
-      nodePort: ${nginx_ingress_controller_http_nodeport}
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 443
-      nodePort: ${nginx_ingress_controller_https_nodeport}
-  type: NodePort
----
-apiVersion: v1
-data:
-  allow-snippet-annotations: "true"
-  enable-real-ip: "true"
-  proxy-real-ip-cidr: "0.0.0.0/0"
-  proxy-body-size: "20m"
-  use-proxy-protocol: "true"
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
-    app.kubernetes.io/version: 1.1.1
-    helm.sh/chart: ingress-nginx-4.0.16
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-EOF
-}
-
 render_staging_issuer(){
 STAGING_ISSUER_RESOURCE=$1
 cat << 'EOF' > $STAGING_ISSUER_RESOURCE
@@ -81,7 +33,7 @@ spec:
    solvers:
    - http01:
        ingress:
-         class:  nginx
+         class: traefik
 EOF
 }
 
@@ -106,11 +58,35 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx
+          class: traefik
 EOF
 }
 
-# Disable firewall 
+render_traefik_config(){
+cat << 'EOF' > $TRAEFIK_CONFIG_FILE
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    ports:
+      web:
+        nodePort: ${ingress_controller_http_nodeport}
+      websecure:
+        nodePort: ${ingress_controller_https_nodeport}
+    service:
+      type: NodePort
+    additionalArguments:
+      - "--entryPoints.web.proxyProtocol.trustedIPs=10.0.0.0/24"
+      - "--entryPoints.websecure.proxyProtocol.trustedIPs=10.0.0.0/24"
+      - "--entryPoints.web.forwardedHeaders.insecure=true"
+      - "--entryPoints.websecure.forwardedHeaders.insecure=true"
+EOF
+}
+
+# Disable firewall
 /usr/sbin/netfilter-persistent stop
 /usr/sbin/netfilter-persistent flush
 
@@ -132,7 +108,7 @@ first_instance=$(oci compute instance list --compartment-id ${compartment_ocid} 
 instance_id=$(curl -s -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance | jq -r '.displayName')
 first_last="last"
 
-%{ if install_nginx_ingress } 
+%{ if !install_traefik }
 disable_traefik="--disable traefik"
 %{ endif }
 
@@ -172,12 +148,11 @@ if [[ "$first_last" == "first" ]]; then
 fi
 %{ endif }
 
-%{ if install_nginx_ingress }
+%{ if install_traefik }
 if [[ "$first_last" == "first" ]]; then
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.1/deploy/static/provider/baremetal/deploy.yaml
-  NGINX_RESOURCES_FILE=/root/nginx-ingress-resources.yaml
-  render_nginx_config
-  kubectl apply -f $NGINX_RESOURCES_FILE
+  TRAEFIK_CONFIG_FILE=/root/traefik-config.yaml
+  render_traefik_config
+  kubectl apply -f $TRAEFIK_CONFIG_FILE
 fi
 %{ endif }
 

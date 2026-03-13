@@ -7,7 +7,7 @@ data "template_cloudinit_config" "k3s_server_tpl" {
     content = templatefile("${path.module}/files/k3s-install-server.sh", {
       k3s_token                               = var.k3s_token,
       is_k3s_server                           = true,
-      install_nginx_ingress                   = var.install_nginx_ingress,
+      install_traefik                         = var.install_traefik,
       install_certmanager                     = var.install_certmanager,
       certmanager_release                     = var.certmanager_release,
       certmanager_email_address               = var.certmanager_email_address,
@@ -23,8 +23,8 @@ data "template_cloudinit_config" "k3s_server_tpl" {
       argocd_release                          = var.argocd_release,
       install_longhorn                        = var.install_longhorn,
       longhorn_release                        = var.longhorn_release,
-      nginx_ingress_controller_http_nodeport  = var.nginx_ingress_controller_http_nodeport,
-      nginx_ingress_controller_https_nodeport = var.nginx_ingress_controller_https_nodeport,
+      ingress_controller_http_nodeport  = var.ingress_controller_http_nodeport,
+      ingress_controller_https_nodeport = var.ingress_controller_https_nodeport,
     })
   }
 }
@@ -41,8 +41,8 @@ data "template_cloudinit_config" "k3s_worker_tpl" {
       k3s_url                                 = oci_load_balancer_load_balancer.k3s_load_balancer.ip_address_details[0].ip_address,
       http_lb_port                            = var.http_lb_port,
       https_lb_port                           = var.https_lb_port,
-      nginx_ingress_controller_http_nodeport  = var.nginx_ingress_controller_http_nodeport,
-      nginx_ingress_controller_https_nodeport = var.nginx_ingress_controller_https_nodeport,
+      ingress_controller_http_nodeport  = var.ingress_controller_http_nodeport,
+      ingress_controller_https_nodeport = var.ingress_controller_https_nodeport,
     })
   }
 }
